@@ -20,13 +20,13 @@ function mapGenericControllerRoutes(controllers, router) {
   });
 }
 
-module.exports = (app, router) => {
+module.exports = (app, router, request) => {
   const mongoose = app.get("mongoose");
   const courseController = CoursesController(mongoose);
   const studentController = StudentsController(mongoose);
   const evaluationController = EvaluationsController(mongoose);
   const technologyController = TechnologiesController(mongoose);
-  const billingController = BillingController(mongoose);
+  const billingController = BillingController(mongoose, request, app.get("config"));
 
   const controllers = [
     {basePath: "/evaluations", controller: evaluationController},
@@ -42,6 +42,10 @@ module.exports = (app, router) => {
 
   router.route("/afip")
     .post(afipAPI.getInvoice);
+
+  router.route("/admin/billing/getInvoices")
+    .get(billingController.getInvoices);
+
 
   return router;
 };

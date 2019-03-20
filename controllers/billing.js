@@ -1,4 +1,4 @@
-module.exports = (mongoose) => {
+module.exports = (mongoose,request, config) => {
   const Course = mongoose.model("Course");
   const Evaluation = mongoose.model("Evaluation");
   const Student = mongoose.model("Student");
@@ -82,7 +82,78 @@ module.exports = (mongoose) => {
       });
   }
 
+  function _parseBillingAddress({street1,city,state,country}){
+    return `${country}, ${state}, ${city}, ${street1}`;
+  }
+
+  function _getChargeableStudents(req, res, url) {
+   
+    return new Promise( (resolve,reject ) => {
+      request.get(url+'/api/admin/billing/getChargeableStudents', (err,_,data) => {
+        if (err)
+          reject(err)
+        try {
+          const students = JSON.parse(data).data.studentsBillingInfo;
+          resolve(students);
+        }
+        catch (err) {
+          reject(err)
+        }
+      })
+    })
+  }
+
+  function _generateInvoiceAFIP(student,url,json = null){
+    return new Promise( (resolve,reject) => {
+      if (!json) {
+        json = {
+          nomYAp: `${student.firstName}' '${student.lastName}`,
+          dir: _parseBillingAddress(student.address),
+          importe: parseFloat(student.price / 100)
+        }
+      }
+      request.post(url+'/api/afip', {json:json}, (err,_, data) => {
+        if (err){
+          return reject(err)
+        }
+
+        if (data.status === 'success') {
+          return resolve({BillingNumber:data.data.id, 
+                          FirstAndLastName: json.nomYAp,
+                          Address:json.dir,
+                          price:student.price
+                        })
+        }
+        console.log("AFIP fallo, Reintentando...",data);
+        _generateInvoiceAFIP(student,url,json)
+          .then( data => resolve(data))
+          .catch( err => reject(err) )
+      })
+    })
+  }
+
+  function getInvoices(req, res) {
+    const url = req.protocol + '://' + req.hostname + ':' + config.port;
+    _getChargeableStudents(req, res, url)
+    .then (students => {
+      let invoicesPromise = [];
+      students.forEach ( student => {
+        invoicesPromise.push(_generateInvoiceAFIP(student,url));
+      });
+      return Promise.all(invoicesPromise);
+    })
+    .then ( invoices => {
+      res.response200(invoices, `Found '${invoices.length}' Invoices.`);
+    })
+    .catch (err => {
+      res.response500(err, "Error on get Chargeable Students");
+    })
+    
+
+}
+
   return {
-    getChargeableStudents
+    getChargeableStudents,
+    getInvoices
   };
 };

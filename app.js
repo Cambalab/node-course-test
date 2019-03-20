@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const config = require("./config");
 const {responseHelpers} = require("./middleware");
 const routes = require("./routes");
+const request = require("request");
+
 require("./models");
 
 const app = express();
@@ -30,7 +32,7 @@ mongoose.connect(config.db, {useNewUrlParser: true});
 // models(mongoose);
 
 // Register the routes and mount them all at /api
-app.use("/api", routes(app, express.Router()));
+app.use("/api", routes(app, express.Router(),request));
 
 // default route handler
 app.use((req, res) => {

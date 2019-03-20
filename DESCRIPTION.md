@@ -12,12 +12,6 @@ Para simplificar nuestras tareas administrativas necesitamos hacer un sitio web 
 
 **ABM: Sistema de alta, baja y modificación**
 
-Preguntas:
-
-Cambiarías algo de como estuvo modelada la aplicacion?
-Que más le agregarías?
-
-
 # Modelos
 
 ### Technology

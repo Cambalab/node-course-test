@@ -1,0 +1,385 @@
+{
+	"info": {
+		"_postman_id": "2f62c896-5ec5-4fb2-8389-4e4ecd69fb51",
+		"name": "Node Course Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "courses",
+			"item": [
+				{
+					"name": "createCourse",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"technologyId\": \"Ruby\",\n  \"date\": {\n    \"from\": \"2018-10-20T00:00:00Z\",\n    \"to\": \"2018-10-21T00:00:00Z\"\n  },\n  \"description\": \"A Ruby starter course\",\n  \"classes\": [{\"name\": \"Class 1\", \"description\": \"zaraza\"}],\n  \"price\": 3000,\n  \"students\": [\"pepe\"]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/courses",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"courses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getCourses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8000/api/courses?status=new",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"courses"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "new"
+								},
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getCourse",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8000/api/courses/5c897b3224df1045011bda48",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"courses",
+								"5c897b3224df1045011bda48"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "students",
+			"item": [
+				{
+					"name": "createStudent",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"firstName\": \"Pupa\",\n\t\"lastName\": \"Polainas\",\n\t\"billingAddress\": {\n\t\t\"street1\": \"Av. De Mayo 776\",\n\t\t\"city\": \"Buenos Aires\",\n\t\t\"state\": \"Buenos Aires\",\n\t\t\"zipCode\": \"1084\",\n\t\t\"country\": \"Argentina\"\n\t},\n\t\"creditCards\": [{\n\t\t\"firstName\": \"Pupa\",\n\t\t\"lastName\": \"Polainas\",\n\t\t\"last4Numbers\": 1234,\n\t\t\"creditCardAPIToken\": \"030340543jbdjbjdbas3jnew\",\n\t\t\"isDefault\": true\n\t}]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/students",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"students"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getStudents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8000/api/students",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"students"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getStudent",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8000/api/students/5c8be6ec89a91670892d733b",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"students",
+								"5c8be6ec89a91670892d733b"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "evaluations",
+			"item": [
+				{
+					"name": "createEvaluation",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"courseId\": \"5c8c09ff444bfa0dfa450066\",\n\t\"date\": {\n    \t\"from\": \"2019-03-21T00:00:00Z\",\n    \t\"to\": \"2019-03-22T00:00:00Z\"\n\t},\n\t\"abstract\": \"The evaluation for the Ruby course. Write JS stuff to pass\",\n\t\"notes\": []\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/evaluations",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"evaluations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getEvaluations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8000/api/evaluations",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"evaluations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getEvaluation",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8000/api/evaluations/5c8bffd489a91670892d7e12",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"evaluations",
+								"5c8bffd489a91670892d7e12"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "technologies",
+			"item": [
+				{
+					"name": "createTechnology",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"NodeJS\",\n\t\"technologyId\": \"node\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/technologies",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"technologies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getTechnologies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8000/api/technologies",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"technologies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getTechnology",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8000/api/technologies/5c8bf2479984df0c32c5e00c",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"technologies",
+								"5c8bf2479984df0c32c5e00c"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "billing",
+			"item": [
+				{
+					"name": "getChargeableStudents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://localhost:8000/api/admin/billing/getChargeableStudents",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"admin",
+								"billing",
+								"getChargeableStudents"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "afip",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/afip",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"afip"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

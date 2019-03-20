@@ -17,7 +17,7 @@ let billsData = [];
 
 describe("node-course-test", () => {
 
-    beforeEach(async () => {
+    before(async () => {
 
         await Course.deleteMany({})
         await Technology.deleteMany({});
@@ -202,11 +202,25 @@ describe("node-course-test", () => {
                     .expect(200)
                     .then((res) => {
                         expect(res.body.status).to.eql("success");
-                        expect(res.body.data.length).to.eql(billsCount);
-                        for (let i = 0 ; i < res.body.data.length ; i ++) {
-                            expect(res.body.data[i].price).to.eql(billsData[i].price);
+                        expect(res.body.data.data.length).to.eql(billsCount);
+                        for (let i = 0 ; i < res.body.data.data.length ; i ++) {
+                            expect(res.body.data.data[i].price).to.eql(billsData[i].price);
                         }
                     });
+            });
+            
+        }})
+
+    })
+
+    describe("Issue 3: Add Middleware for caching GET requests", () =>  {
+
+        context("Call #GET courses twice", () => {{
+            
+            it("should take less time on second request ", () => {
+                promises.push(request(app)
+                .get(`${path}`)
+                .expect(200))
             });
             
         }})

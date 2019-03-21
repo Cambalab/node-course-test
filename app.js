@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const config = require("./config");
-const {responseHelpers} = require("./middleware");
+const {responseHelpers, cache} = require("./middleware");
 const routes = require("./routes");
 require("./models");
 
@@ -21,6 +21,10 @@ app.use(morgan("dev"));
 // Add response helpers
 app.use(responseHelpers);
 
+//Add cache capacity
+app.set("cache", cache.new());
+app.use(cache.middleware(app));
+
 // Add cache middleware
 // app.use(cacheMiddleware);
 
@@ -36,6 +40,7 @@ app.use("/api", routes(app, express.Router()));
 app.use((req, res) => {
   res.status(404).send(`${req.originalUrl} not found`);
 });
+
 
 app.listen(config.port, () => {
   console.log(`courses-evaluation-api listening on port ${config.port}!`);

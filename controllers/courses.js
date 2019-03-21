@@ -1,6 +1,6 @@
 module.exports = (mongoose) => {
   var Course = mongoose.model("Course"),
-  filterFields = ["status"],
+  filterFields = ["status", "technologyId"],
   sortFields = ["status"];
 
   var buildFilterQuery = function(params) {
@@ -19,7 +19,9 @@ module.exports = (mongoose) => {
   }
 
   function list(req, res) {
-    Course.find(buildFilterQuery(req.query)).sort()
+    Course
+      .find(buildFilterQuery(req.query))
+      .sort()
       .then(function (courses) {
         res.response200({courses}, "Found '" + courses.length + "' Courses.");
       })

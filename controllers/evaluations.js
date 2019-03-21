@@ -18,8 +18,7 @@ module.exports = (mongoose) => {
     return controller.create(req, res, {normalize: getEvaluationDTO});
   }
 
-  return {
-    ...controller,
-    create: createEvaluation
-  };
+  controller.create = createEvaluation;
+
+  return controller;
 };

@@ -3,8 +3,13 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const config = require("./config");
-const {responseHelpers} = require("./middleware");
+let globalCache = []
+const {responseHelpers,cacheMiddleware} = require("./middleware")(globalCache,config);
 const routes = require("./routes");
+const request = require("request");
+
+
+
 require("./models");
 
 const app = express();
@@ -22,7 +27,7 @@ app.use(morgan("dev"));
 app.use(responseHelpers);
 
 // Add cache middleware
-// app.use(cacheMiddleware);
+app.use(cacheMiddleware);
 
 // Setup mongoose and load models
 mongoose.Promise = global.Promise;
@@ -30,7 +35,7 @@ mongoose.connect(config.db, {useNewUrlParser: true});
 // models(mongoose);
 
 // Register the routes and mount them all at /api
-app.use("/api", routes(app, express.Router()));
+app.use("/api", routes(app, express.Router(),request));
 
 // default route handler
 app.use((req, res) => {

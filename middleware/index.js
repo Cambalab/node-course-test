@@ -1,3 +1,9 @@
-const responseHelpers = require("./responseHelpers");
+module.exports = (globalCache,config) => {
+    const responseHelpers = require("./responseHelpers");
+    const cacheMiddleware = require("./cacheMiddleware")(globalCache,config);
 
-module.exports = {responseHelpers};
+    return {
+        responseHelpers,
+        cacheMiddleware
+    }
+};

@@ -151,8 +151,7 @@ describe("node-course-test", () => {
 
         console.log("Collections created!");
 
-        let billsRes = await request(app).get(`/api/admin/billing/getChargeableStudents`)
-        
+        let billsRes = await request(app).get(`/api/admin/billing/getChargeableStudents`);
         billsData = billsRes.body.data.studentsBillingInfo;
         billsCount = billsData.length;
         
@@ -187,7 +186,7 @@ describe("node-course-test", () => {
         const path =  '/api/admin/billing/getInvoices'
         context("#GET admin/billing/getInvoices", () => {{
             let promises = []
-            it("should't fail on multiple calls", () => {
+            it("should't fail on multiple calls", function() {
                 for (let i=0 ; i<20 ; i++ ) {
                     promises.push(request(app)
                     .get(`${path}`)
@@ -202,9 +201,9 @@ describe("node-course-test", () => {
                     .expect(200)
                     .then((res) => {
                         expect(res.body.status).to.eql("success");
-                        expect(res.body.data.data.length).to.eql(billsCount);
-                        for (let i = 0 ; i < res.body.data.data.length ; i ++) {
-                            expect(res.body.data.data[i].price).to.eql(billsData[i].price);
+                        expect(res.body.data.length).to.eql(billsCount);
+                        for (let i = 0 ; i < res.body.data.length ; i ++) {
+                            expect(res.body.data[i].price).to.eql(billsData[i].price);
                         }
                     });
             });
@@ -214,13 +213,79 @@ describe("node-course-test", () => {
     })
 
     describe("Issue 3: Add Middleware for caching GET requests", () =>  {
-
-        context("Call #GET courses twice", () => {{
+        
+        context("Call #GET courses twice", () => {
+            const path =  '/api/courses'
+           
+           
+            let elapsedTime1 = 0;
             
+            before(async () => {
+                const startTime1 =  new Date().getTime();
+                await request(app).get(`${path}`);
+                elapsedTime1 = new Date().getTime() - startTime1;
+            })
+
             it("should take less time on second request ", () => {
-                promises.push(request(app)
+                const startTime2 = new Date().getTime();
+                return request(app)
                 .get(`${path}`)
-                .expect(200))
+                .expect(200)
+                .then((res) => {
+                    const elapsedTime2 = new Date().getTime() - startTime2;
+                    expect(elapsedTime1).to.gt(elapsedTime2)
+                });
+            });
+            
+        })
+
+        context("Call #PUT courses should reset cache", () => {
+            const path =  '/api/courses'
+           
+           
+            let elapsedTime1 = 0;
+            
+            before(async () => {
+                //First call
+                await request(app).get(`${path}`);
+
+                //Second call
+                const startTime1 =  new Date().getTime();
+                await request(app).get(`${path}`);
+                elapsedTime1 = new Date().getTime() - startTime1;
+
+                //Post call (Resets cache)
+                await request(app).put(`${path}/${createdCourses[0]._id}`,);
+            })
+
+            it("should take more time on second request ", () => {
+                const startTime2 = new Date().getTime();
+                return request(app)
+                .get(`${path}`)
+                .expect(200)
+                .then((res) => {
+                    const elapsedTime2 = new Date().getTime() - startTime2;
+                    expect(elapsedTime2).to.gt(elapsedTime1)
+                });
+            });
+            
+        })
+
+    })
+
+    describe("Issue 4: create GET /stats/failuresByStates", () =>  {
+        const path = '/api/stats/failuresByStates'
+        context("#GET /stats/failuresByStates", () => {{
+            
+            it("should return an object with atributte Wisconsin", () => {
+                return request(app)
+                    .get(`${path}`)
+                    .expect(200)
+                    .then((res) => {
+                        expect(res.body.status).to.eql("success");
+                        expect(res.body.data).to.not.null;
+                        expect(res.body.data['Wisconsin']).to.eql(1);
+                    });
             });
             
         }})

@@ -1,5 +1,6 @@
 const {
   BillingController,
+  InvoiceController,
   EvaluationsController,
   CoursesController,
   StudentsController,
@@ -27,6 +28,7 @@ module.exports = (app, router) => {
   const evaluationController = EvaluationsController(mongoose);
   const technologyController = TechnologiesController(mongoose);
   const billingController = BillingController(mongoose);
+  const invoiceController = InvoiceController(mongoose);
 
   const controllers = [
     {basePath: "/evaluations", controller: evaluationController},
@@ -39,6 +41,10 @@ module.exports = (app, router) => {
 
   router.route("/admin/billing/getChargeableStudents")
     .get(billingController.getChargeableStudents);
+
+  router.route("/admin/billing/getInvoices")
+    .get(invoiceController.getInvoices);
+
 
   router.route("/afip")
     .post(afipAPI.getInvoice);

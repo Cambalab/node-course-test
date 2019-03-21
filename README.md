@@ -1,28 +1,21 @@
-# node-course-test
-Exam repo for Fiqus' [node-course](https://github.com/fiqus/node-course) by Cambá.
+# node-course-test-resolve
 
-### Contents
-- [Installation](/README.md#installation)
-- [Domain description](/DESCRIPTION.md)
-- [Excercises](/README.md#excercises)
-- [Evaluation criteria](/README.md#evaluation-criteria)
-- [API](/API.md)
+We had to re run the mongo docker (we had installed in a docker instance because in debian 10 testing are not a candidate in official repo. We tried to install directly via the package but has dependency problems) for expose a volume, then copy the dump, and execute the mongorestore.
 
-## Installation
-In the project root run:
-```
-npm install
-mongorestore ./dump
-```
+ sudo docker run -p 27017:27017 -v /home/rfpolverini/repoBantics/mongo/:/etc/mongo --name some-mongo -d mongo:3.4.20
 
-## Excercises
-1. [Add filter by technologyId for GET api/courses endpoint](https://github.com/Cambalab/node-course-test/issues/1)
-2. [create a GET api/admin/billing/getInvoices](https://github.com/Cambalab/node-course-test/issues/2)
-3. [Add Middleware for caching GET requests](https://github.com/Cambalab/node-course-test/issues/3)
-4. [create GET api/stats/mostFailedStates](https://github.com/Cambalab/node-course-test/issues/4)
+sudo docker exec -i some-mongo mongorestore /etc/mongo/dump
 
-## Evaluation criteria
+Issue 1
+We made the test, trying to acomplish the requeriment of the first issue.
 
-To pass this exam all excercises must be resolved, every feature must be tested (with all tests passing) and there must be no linting errors.
+We saw that the genericController implement a generic FilterQuery . The fields of this queryBuilder is defined in each specific controller, then we add the required field in the filterFields array.
+We saw too that the buildFilterQuery function had linter error, we redefined it
 
-Summission must be done through a single Pull Request.
+Issue 2
+We try to made a test for this issue, we see that a get in http://localhost:8000/api/admin/billing/getChargeableStudents response with '7' Students, then we expected an array with 7 objects in the response, one for each possible invoice.
+
+
+We are going Crazy with the async and promises...
+We tried to make it Sync Without success because the request allways seems to be async... and the result object is filled empty .
+We tried to use async, with await, .then chain, etc.. but nothing seems to work like we excpect.

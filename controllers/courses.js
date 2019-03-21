@@ -1,16 +1,16 @@
 module.exports = (mongoose) => {
-  var Course = mongoose.model("Course"),
-  filterFields = ["status"],
-  sortFields = ["status"];
+  let Course = mongoose.model("Course");
+  var filterFields = ["status", "technologyId"];
+  var sortFields = ["status"];
 
-  var buildFilterQuery = function(params) {
+  let buildFilterQuery = function (params) {
     return filterFields.reduce((query, prop) => {
       if (params[prop]) {
         query[prop] = params[prop];
       }
       return query;
     }, {});
-  }
+  };
 
   function getCourseDTO(course) {
     course.date.from = new Date(course.date.from);
@@ -20,32 +20,32 @@ module.exports = (mongoose) => {
 
   function list(req, res) {
     Course.find(buildFilterQuery(req.query)).sort()
-      .then(function (courses) {
+      .then((courses) => {
         res.response200({courses}, "Found '" + courses.length + "' Courses.");
       })
-      .catch(function (err) {
+      .catch((err) => {
         res.response500(err, "Courses couldn't be found!");
       });
   }
 
   function create(req, res) {
-    let courseDTO = getCourseDTO(req.body);
+    const courseDTO = getCourseDTO(req.body);
     Course.create(courseDTO)
       .then((course) => {
         res.response200(course, `Course '${course._id}' successfully created.`);
       })
       .catch((err) => {
-        res.response500(err,  "Course couldn't be created!");
+        res.response500(err, "Course couldn't be created!");
       });
   }
 
   function read(req, res) {
-    Course.findById({ _id: req.params.id })
+    Course.findById({_id: req.params.id})
       .then((course) => {
         if (course) {
-            res.response200({course}, `Course '${course._id}' found.`);
+          res.response200({course}, `Course '${course._id}' found.`);
         } else {
-            res.response404("Course not found!");
+          res.response404("Course not found!");
         }
       })
       .catch((err) => {
@@ -59,7 +59,7 @@ module.exports = (mongoose) => {
         if (course) {
           res.response200({course}, `Course '${course._id}' successfully updated.`);
         } else {
-          res.response404('Course not found!');
+          res.response404("Course not found!");
         }
       })
       .catch((err) => {

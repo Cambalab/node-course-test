@@ -1,4 +1,6 @@
 module.exports = (req, res, next) => {
+  console.log("holas");
+  
   res.response200 = (data = {}, message = "ok") => {
     res.json({data, status: "success", message});
   };

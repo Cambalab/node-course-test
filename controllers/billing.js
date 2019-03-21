@@ -82,7 +82,82 @@ module.exports = (mongoose) => {
       });
   }
 
-  return {
-    getChargeableStudents
+  function getInvoices(req, res) {  
+    const request = require("request"),
+    url = "http://localhost:8000/api/admin/billing/getChargeableStudents";
+  
+    return new Promise((resolve, reject) => {
+      request.get(url, (err, response, body) => {
+        if (err) {
+          reject(err);
+        } else if (response.statusCode === 200) {
+          try {
+            resolve(JSON.parse(body));
+          } catch (ex) {
+            console.error(ex);
+            reject(new Error("Couldn't get data bills!"));
+          }
+        } else {
+          console.error(response);
+          reject(new Error("Couldn't get data bills!"));
+        }
+      });
+    })
+    .then((dataToInvoice) => {
+      const bills = dataToInvoice.data.studentsBillingInfo.map((b) => {
+          return postAfip(b);
+      })
+      return Promise.all(bills);
+    })
+    .then((bills) => {
+      res.response200(bills);
+    })
+    .catch((err) => {
+      res.response500(err, "Bills not generated!");
+    });
+  }
+
+  function postAfip(dataToInvoice){
+    const request = require("request"),
+    url = "http://localhost:8000/api/afip";
+
+    return new Promise((resolve, reject) => {   
+    const formAfip = {
+        nomYAp: dataToInvoice.firstName,
+        dir: dataToInvoice.address.street1,
+        importe: dataToInvoice.price/100
+      };
+
+    request.post(url, { json: formAfip}, (err, response, body) => {
+      if (err) {
+        reject(err);
+      } else if (response.statusCode === 200) {
+        try {
+          console.log(body);
+          const bill = { 
+            BillingNumber: body.data.id,
+            FirstAndLastName: dataToInvoice.firstName + ',' +  dataToInvoice.lastName,
+            Address: dataToInvoice.address.street1,
+            price: dataToInvoice.price/100
+          }
+          console.log(bill);
+          resolve(bill);
+        } catch (ex) {
+          console.error(ex);
+          reject(new Error("error de parseo "));
+        }
+      } else if (response.statusCode === 404){
+        console.error('response:');
+        console.error(response.statusCode);
+        reject(new Error("error afip "));
+        //postAfip(dataToInvoice);
+      }
+    });
+  })
+};
+ 
+return {
+    getChargeableStudents,
+    getInvoices
   };
 };

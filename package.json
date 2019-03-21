@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node ./app.js",
-    "test": "NODE_ENV=test ./node_modules/mocha/bin/_mocha --timeout 1000 --exit"
+    "test": "SET NODE_ENV=test ./node_modules/mocha/bin/_mocha --timeout 1000 --exit",
+    "test2": "mocha test/dummy_tests.js --exit --timeout 10000"
   },
   "keywords": [
     "exam",

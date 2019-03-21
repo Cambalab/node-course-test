@@ -1,4 +1,5 @@
 const {
+  StateController,
   BillingController,
   EvaluationsController,
   CoursesController,
@@ -27,6 +28,7 @@ module.exports = (app, router) => {
   const evaluationController = EvaluationsController(mongoose);
   const technologyController = TechnologiesController(mongoose);
   const billingController = BillingController(mongoose);
+  const stateController = StateController(mongoose);
 
   const controllers = [
     {basePath: "/evaluations", controller: evaluationController},
@@ -36,6 +38,12 @@ module.exports = (app, router) => {
   ];
 
   mapGenericControllerRoutes(controllers, router);
+
+  router.route("/stats/failuresByStates")
+    .get(stateController.getFailuresByStates);
+
+  router.route("/admin/billing/getInvoices")
+    .get(billingController.getInvoices);
 
   router.route("/admin/billing/getChargeableStudents")
     .get(billingController.getChargeableStudents);

@@ -1,7 +1,10 @@
+const request = require("request");
+
 module.exports = (mongoose) => {
   const Course = mongoose.model("Course");
   const Evaluation = mongoose.model("Evaluation");
   const Student = mongoose.model("Student");
+
 
   // para cada curso dame la evaluacion
   // para cada evaluacion dame los aprobados
@@ -81,8 +84,64 @@ module.exports = (mongoose) => {
         res.response500(err, "Courses couldn't be found!");
       });
   }
+  const dataResponse = [];
+
+  function getAfipNumber(s) {
+    const jsonStudent = {
+      nomYAp: `${s.firstName} ${s.lastName}`,
+      dir: `${s.street1}, ${s.city}, ${s.state}, ${s.zipCode}, ${s.country}`,
+      importe: s.price // @TODO: pasarlo a con coma
+    };
+
+    return new Promise((resolve, reject) => {
+      request({url: "http://localhost:8000/api/afip", method: "POST", json: jsonStudent}, (err2, response2, body2) => {
+        if (err2) {
+          console.log("ERROR");
+          reject(err2);
+        } else if (!body2.data) {
+          console.log("AFIP ERROR");
+          return getAfipNumber(s);
+        } else {
+          console.log("ID ", body2.data);
+          dataResponse.push(body2.data);
+        }
+      });
+    });
+  }
+
+  function getInvoices(req, res) {
+    console.log("haciendo el request");
+
+    request.get("http://localhost:8000/api/admin/billing/getChargeableStudents", (err, response, body) => {
+      if (err) {
+        console.log("Error");
+      } else {
+      // console.log(body);
+      // console.log(body);
+
+        const j = JSON.parse(body);
+
+        Promise.all(j.data.studentsBillingInfo.map((student) => {
+          // console.log(student);
+          return getAfipNumber(student)
+            .then((numero) => {
+              // dataResponse.push({
+              //   BillingNumber: numero,
+              //   FirstAndLastName: `${student.firstName} ${student.lastName}`,
+              //   Adress: `${student.street1}, ${student.city}, ${student.state}, ${student.zipCode}, ${student.country}`,
+              //   price: student.price
+              // });
+            });
+          // getAfipNumber(student);
+        }));
+      }
+      console.log("data: ", dataResponse);
+      res.response200(dataResponse);
+    });
+  }
 
   return {
+    getInvoices,
     getChargeableStudents
   };
 };

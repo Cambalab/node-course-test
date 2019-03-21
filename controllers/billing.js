@@ -2,6 +2,38 @@ module.exports = (mongoose) => {
   const Course = mongoose.model("Course");
   const Evaluation = mongoose.model("Evaluation");
   const Student = mongoose.model("Student");
+  const request = require("request");
+
+  function convertAfipObject({id}, student) {
+    return {
+      BillingNumber: id,
+      FirstAndLastName: student.nomYAp,
+      Address: student.dir,
+      price: student.importe
+    };
+  }
+
+  function afipInvoice(student) {
+    return new Promise((resolve, reject) => {
+      request.post("http://localhost:8000/api/afip", {json: student}, (req, res) => {
+        if (res.statusCode === 404) {
+          resolve(afipInvoice(student));
+        } else if (res.statusCode === 200) {
+          resolve(convertAfipObject(res.body.data, student));
+        } else {
+          reject();
+        }
+      });
+    });
+  }
+
+  async function requestAfipInvoices(students) {
+    const response = students.map((student) => {
+      return afipInvoice(student);
+    });
+    return Promise.all(response);
+  }
+
 
   // para cada curso dame la evaluacion
   // para cada evaluacion dame los aprobados
@@ -82,7 +114,42 @@ module.exports = (mongoose) => {
       });
   }
 
+  function requestChargableStudents() {
+    return new Promise((resolve, reject) => {
+      request.get("http://localhost:8000/api/admin/billing/getChargeableStudents", (_, __, body) => {
+        let bodyData = null;
+        try {
+          bodyData = JSON.parse(body);
+        } catch (ex) {
+          reject(ex);
+        }
+        const afipArray = [];
+        bodyData.data.studentsBillingInfo.forEach((student) => {
+          const {firstName, lastName, address, price: importe} = student;
+          afipArray.push({
+            nomYAp: `${firstName} ${lastName}`,
+            dir: address.street1,
+            importe: importe / 100
+          });
+        });
+        resolve(afipArray);
+      });
+    });
+  }
+
+  async function getInvoices(req, res) {
+    try {
+      const afipArray = await requestChargableStudents();
+      const studentsWithAfip = await requestAfipInvoices(afipArray);
+      res.response200(studentsWithAfip, "Successfully collected student billing data with invoices");
+    } catch (err) {
+      res.response500(err, "couldn't get invoices");
+    }
+  }
+
+
   return {
-    getChargeableStudents
+    getChargeableStudents,
+    getInvoices
   };
 };

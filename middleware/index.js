@@ -1,3 +1,6 @@
 const responseHelpers = require("./responseHelpers");
-
-module.exports = {responseHelpers};
+const {cacheMiddlewareBefore} = require("./cache");
+module.exports = {
+  responseHelpers,
+  cacheMiddlewareBefore
+};

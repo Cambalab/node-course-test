@@ -1,10 +1,13 @@
+let dictionary = {};
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const config = require("./config");
-const {responseHelpers} = require("./middleware");
+const {responseHelpers, cacheMiddleware} = require("./middleware")(dictionary);
 const routes = require("./routes");
+const request = require("request");
 require("./models");
 
 const app = express();
@@ -18,11 +21,11 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(morgan("dev"));
 
+// Add cache middleware
+app.use(cacheMiddleware);
+
 // Add response helpers
 app.use(responseHelpers);
-
-// Add cache middleware
-// app.use(cacheMiddleware);
 
 // Setup mongoose and load models
 mongoose.Promise = global.Promise;
@@ -30,7 +33,7 @@ mongoose.connect(config.db, {useNewUrlParser: true});
 // models(mongoose);
 
 // Register the routes and mount them all at /api
-app.use("/api", routes(app, express.Router()));
+app.use("/api", routes(app, express.Router(), request, config));
 
 // default route handler
 app.use((req, res) => {

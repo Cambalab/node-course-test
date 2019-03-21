@@ -1,7 +1,8 @@
-module.exports = (mongoose) => {
+module.exports = (mongoose, app) => {
   const Course = mongoose.model("Course");
   const Evaluation = mongoose.model("Evaluation");
   const Student = mongoose.model("Student");
+  const request = require('request');
 
   // para cada curso dame la evaluacion
   // para cada evaluacion dame los aprobados
@@ -75,6 +76,7 @@ module.exports = (mongoose) => {
         return Promise.all(studentsBillingInfo);
       })
       .then((studentsBillingInfo) => {
+        console.log(`Found '${studentsBillingInfo.length}' Students.`);
         res.response200({studentsBillingInfo}, `Found '${studentsBillingInfo.length}' Students.`);
       })
       .catch((err) => {
@@ -82,7 +84,65 @@ module.exports = (mongoose) => {
       });
   }
 
+  function getInvoices(req, res){
+    getStudentsBillingInfo()
+      .then((studentsBillingInfo) => {
+        const afipInfo = studentsBillingInfo.map(getAfipStudentsInfo);
+        return Promise.all(afipInfo);
+      })
+      .then((afipInvoices) => {
+        console.log(`Found '${afipInvoices.length}' Students' invoices.`);
+        res.response200({afipInvoices}, `Found '${afipInvoices.length}' Students' invoices.`);
+      })
+      .catch((err) => {
+        res.response500(err, "Get invoices couldn't be found!");
+      });
+  }
+
+  function getStudentsBillingInfo(){
+    return new Promise((resolve, reject) => {
+      try {
+        request.get("http://localhost:3000/api/admin/billing/getChargeableStudents",
+          (err, response, body) => {
+            resolve(JSON.parse(body).data.studentsBillingInfo);
+        });
+      } catch (err){
+        reject(err);
+      }      
+    })    
+  }
+
+  function getAfipStudentsInfo(studentBillingInfo){
+    const afipStudentBillingInfo = {
+      nomYAp: `${studentBillingInfo.firstName}, ${studentBillingInfo.lastName}`,
+      dir: `${studentBillingInfo.address.street1}, ${studentBillingInfo.address.city}, ${studentBillingInfo.address.country}`,
+      importe: studentBillingInfo.price/100
+    };
+
+    return new Promise((resolve, reject) => {
+      request.post(
+        "http://localhost:3000/api/afip", 
+        {json: afipStudentBillingInfo},
+        (err, response, body) => {
+          try{
+            const res = {
+              BillingNumber: body.data.id,
+              FirstAndLastName: afipStudentBillingInfo.nomYAp,
+              Address: afipStudentBillingInfo.dir,
+              price: (afipStudentBillingInfo.importe).toString()
+            }
+            resolve(res);
+          } catch (err) {
+            getAfipStudentsInfo(studentBillingInfo)
+              .then(resolve);
+          }
+        }
+      );
+    })
+  }
+
   return {
-    getChargeableStudents
+    getChargeableStudents,
+    getInvoices
   };
 };

@@ -92,3 +92,6 @@ Summission must be done through a single Pull Request.
     added before.
 
 ## Tests
+
+According to the test, I would have prefer to developed some better tests for the app,
+I think I could not dedicate enough time to do it, but I'm aware about the need to develop some more of them and on a neatter way.

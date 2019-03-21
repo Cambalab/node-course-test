@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const config = require("./config");
-const {responseHelpers} = require("./middleware");
+const {responseHelpers, cacheMiddleware} = require("./middleware");
 const routes = require("./routes");
 require("./models");
 
@@ -20,9 +20,8 @@ app.use(morgan("dev"));
 
 // Add response helpers
 app.use(responseHelpers);
-
 // Add cache middleware
-// app.use(cacheMiddleware);
+app.use(cacheMiddleware);
 
 // Setup mongoose and load models
 mongoose.Promise = global.Promise;

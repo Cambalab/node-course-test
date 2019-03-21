@@ -3,7 +3,8 @@ const {
   EvaluationsController,
   CoursesController,
   StudentsController,
-  TechnologiesController
+  TechnologiesController,
+  StatsController
 } = require("./controllers");
 const afipAPI = require("./services/afip-mock-api");
 
@@ -27,6 +28,7 @@ module.exports = (app, router) => {
   const evaluationController = EvaluationsController(mongoose);
   const technologyController = TechnologiesController(mongoose);
   const billingController = BillingController(mongoose);
+  const statsController = StatsController(mongoose);
 
   const controllers = [
     {basePath: "/evaluations", controller: evaluationController},
@@ -37,11 +39,17 @@ module.exports = (app, router) => {
 
   mapGenericControllerRoutes(controllers, router);
 
+  router.route("/stats/failuresByStates")
+    .get(statsController.failuresByStates);
+
   router.route("/admin/billing/getChargeableStudents")
     .get(billingController.getChargeableStudents);
 
   router.route("/afip")
     .post(afipAPI.getInvoice);
 
+  router.route("/admin/billing/getInvoices").get(
+    billingController.getInvoices
+  );
   return router;
 };

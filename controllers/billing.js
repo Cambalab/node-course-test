@@ -2,7 +2,7 @@ module.exports = (mongoose) => {
   const Course = mongoose.model("Course");
   const Evaluation = mongoose.model("Evaluation");
   const Student = mongoose.model("Student");
-
+  const request = require("request");
   // para cada curso dame la evaluacion
   // para cada evaluacion dame los aprobados
   // para cada aprobado dame el precio del curso y el student
@@ -81,8 +81,66 @@ module.exports = (mongoose) => {
         res.response500(err, "Courses couldn't be found!");
       });
   }
+  function requestChargeableStudents() {
+    return new Promise((resolve, reject) => {
+      request.get("http://localhost:8000/api/admin/billing/getChargeableStudents", (_, __, body) => {
+        let students = [];
+        try {
+          students = JSON.parse(body).data.studentsBillingInfo;
+        } catch (ex) {
+          reject(new Error("error"));
+        }
+        const studentsAfip = [];
+        students.forEach((student) => {
+          studentsAfip.push({nomYAp: `${student.firstName} ${student.lastName}`, dir: student.address.street1, importe: student.price});
+        });
+        resolve(studentsAfip);
+      });
+    });
+  }
+
+  function mapAFIPResponse(invoiceId, student) {
+    return {
+      BillingNumber: invoiceId,
+      FirstAndLastName: student.nomYAp,
+      address: student.dir,
+      price: student.importe
+    };
+  }
+
+  function createInvoice(data) {
+    return new Promise((resolve) => {
+      request.post("http://localhost:8000/api/afip", {json: data}, (_, resp, body) => {
+        if (resp.statusCode === 200) {
+          resolve(mapAFIPResponse(body.data.id, data));
+        } else {
+          resolve(createInvoice(data));
+        }
+      });
+    });
+  }
+
+  function requestInvoices(students) {
+    return Promise.all(students.map((student) => {
+      return createInvoice(student);
+    }));
+  }
+
+  async function getInvoices(req, res) {
+    requestChargeableStudents().then((students) => {
+      return requestInvoices(students);
+    })
+      .then((invoices) => {
+        res.response200(invoices);
+      })
+      .catch(() => {
+        res.response500("There was an error :(");
+      });
+  }
+
 
   return {
-    getChargeableStudents
+    getChargeableStudents,
+    getInvoices
   };
 };

@@ -1,6 +1,6 @@
 module.exports = (mongoose) => {
   var Course = mongoose.model("Course"),
-  filterFields = ["status"],
+  filterFields = ["status", "technologyId"],
   sortFields = ["status"];
 
   var buildFilterQuery = function(params) {

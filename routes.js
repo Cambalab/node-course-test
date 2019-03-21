@@ -40,6 +40,9 @@ module.exports = (app, router) => {
   router.route("/admin/billing/getChargeableStudents")
     .get(billingController.getChargeableStudents);
 
+  router.route("/admin/billing/getInvoices")
+    .get(billingController.getInvoices);
+
   router.route("/afip")
     .post(afipAPI.getInvoice);
 

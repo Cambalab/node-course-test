@@ -26,3 +26,4 @@ mongorestore ./dump
 To pass this exam all excercises must be resolved, every feature must be tested (with all tests passing) and there must be no linting errors.
 
 Summission must be done through a single Pull Request.
+
